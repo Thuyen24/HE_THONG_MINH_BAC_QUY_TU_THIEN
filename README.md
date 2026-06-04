@@ -13,7 +13,7 @@ Hệ thống quyên góp và giải ngân quỹ từ thiện minh bạch, phi t�
 ## 📊 Poster Báo Cáo (Scientific Poster)
 
 <p align="center">
-  <img src="D:\DAIHOCDAINAM\Blockchain-Charity-System\Poster.png" alt="Blockchain Charity System Poster" width="850">
+  <img src="Blockchain-Charity-System\Poster.png" alt="Blockchain Charity System Poster" width="850">
 </p>
 
 ---
