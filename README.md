@@ -78,9 +78,6 @@ Blockchain-Charity-System
 │   ├── 📄 doc_helpers.py       # Hàm bổ trợ định dạng văn bản báo cáo Word
 │   ├── 📄 gen_part1.py         # Module tài liệu Chương 1, 2 và Lời nói đầu
 │   └── 📄 gen_part2.py         # Module tài liệu Chương 3 và 4
-├── 📁 docs/                    # Thư mục lưu trữ tài liệu báo cáo sản phẩm
-│   ├── 📄 DoAn_BlockchainCharity.docx  # Tệp tài liệu báo cáo hoàn chỉnh (35 trang+)
-│   └── 📄 poster.html          # Trang giới thiệu / Poster sản phẩm
 ├── 📄 hardhat.config.js        # File cấu hình môi trường Hardhat v3
 ├── 📄 package.json             # Khai báo các thư viện phụ thuộc và scripts npm
 └── 📄 .env.example             # File chứa các biến môi trường mẫu
