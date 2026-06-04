@@ -74,10 +74,6 @@ Blockchain-Charity-System
 ├── 📁 scripts/                 # Kịch bản triển khai và tạo tài liệu đồ án
 │   ├── 📄 deploy.js            # Script deploy hợp đồng lên Sepolia Testnet
 │   ├── 📄 deploy-local.js      # Script deploy local node và tự động seed dữ liệu mẫu
-│   ├── 📄 generate_doc.py      # Script Python tổng hợp tài liệu báo cáo Word
-│   ├── 📄 doc_helpers.py       # Hàm bổ trợ định dạng văn bản báo cáo Word
-│   ├── 📄 gen_part1.py         # Module tài liệu Chương 1, 2 và Lời nói đầu
-│   └── 📄 gen_part2.py         # Module tài liệu Chương 3 và 4
 ├── 📄 hardhat.config.js        # File cấu hình môi trường Hardhat v3
 ├── 📄 package.json             # Khai báo các thư viện phụ thuộc và scripts npm
 └── 📄 .env.example             # File chứa các biến môi trường mẫu
