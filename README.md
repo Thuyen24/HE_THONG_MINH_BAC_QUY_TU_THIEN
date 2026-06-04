@@ -150,7 +150,7 @@ cp .env.example .env
 
 ---
 
-## 👨‍🎓 Thông tin tác giả đồ án
+## 👨‍🎓 Thông tin tác giả
 
 <div align="center">
 
