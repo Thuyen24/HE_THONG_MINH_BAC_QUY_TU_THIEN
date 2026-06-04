@@ -1,0 +1,284 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Quỹ Từ Thiện Minh Bạch — Blockchain Charity</title>
+  <meta name="description" content="Hệ thống quyên góp từ thiện minh bạch, phi tập trung trên Ethereum Blockchain. Mọi giao dịch được ghi nhận vĩnh viễn.">
+  <link rel="stylesheet" href="styles.css">
+  <script src="https://cdn.jsdelivr.net/npm/ethers@6.13.4/dist/ethers.umd.min.js"></script>
+</head>
+<body>
+
+  <!-- ===== HEADER ===== -->
+  <header class="header">
+    <div class="container header-inner">
+      <a href="#" class="logo">
+        <div class="logo-icon-wrap">
+          <svg class="icon" viewBox="0 0 24 24"><path d="M12 2L2 7l10 5 10-5-10-5z"/><path d="M2 17l10 5 10-5"/><path d="M2 12l10 5 10-5"/></svg>
+        </div>
+        <div class="logo-text">
+          <h1>Blockchain Charity</h1>
+          <p>Transparent &bull; Immutable &bull; Decentralized</p>
+        </div>
+      </a>
+      <!-- Trạng thái: chưa kết nối -->
+      <!-- Network badge (ẩn mặc định) -->
+      <div class="network-badge" id="networkBadge" style="display:none">⚡ Hardhat</div>
+
+      <button class="btn-connect" id="connectBtn" onclick="connectWallet()">
+        <svg class="icon" viewBox="0 0 24 24"><path d="M21 12V7H5a2 2 0 0 1 0-4h14v4"/><path d="M3 5v14a2 2 0 0 0 2 2h16v-5"/><circle cx="18" cy="12" r="2"/></svg>
+        <span>Kết nối ví</span>
+      </button>
+
+      <!-- Trạng thái: đã kết nối — ẩn mặc định -->
+      <div class="wallet-panel" id="walletPanel" style="display:none">
+        <!-- Số dư ví -->
+        <div class="wallet-balance" id="walletBalance">0.0000 ETH</div>
+
+        <!-- Badge địa chỉ -->
+        <div class="wallet-address" id="walletAddress" title="Click để copy địa chỉ" onclick="copyAddress()">
+          <span class="wallet-dot"></span>
+          <span id="walletShort">0x0000...0000</span>
+          <svg class="icon" style="width:14px;height:14px" viewBox="0 0 24 24"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+        </div>
+
+        <!-- Nút đổi ví -->
+        <button class="btn-switch" id="switchBtn" onclick="switchWallet()" title="Chuyển đổi tài khoản MetaMask">
+          <svg class="icon" style="width:15px;height:15px" viewBox="0 0 24 24"><path d="M7 16V4m0 0L3 8m4-4 4 4"/><path d="M17 8v12m0 0 4-4m-4 4-4-4"/></svg>
+          <span>Đổi ví</span>
+        </button>
+
+        <!-- Nút thoát ví -->
+        <button class="btn-disconnect" id="disconnectBtn" onclick="disconnectWallet()" title="Ngắt kết nối ví">
+          <svg class="icon" style="width:15px;height:15px" viewBox="0 0 24 24"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
+          <span>Thoát</span>
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <main class="container">
+    <!-- ===== CAMPAIGN INFO ===== -->
+    <section class="campaign" id="campaignInfo">
+      <div class="campaign-icon">
+        <svg class="icon" viewBox="0 0 24 24"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>
+      </div>
+      <div>
+        <h2 id="campaignName">Đang tải...</h2>
+        <p id="campaignDesc"></p>
+      </div>
+    </section>
+
+    <!-- ===== STATS ===== -->
+    <section class="stats">
+      <div class="stat-card">
+        <div class="stat-header">
+          <span class="stat-label">Số dư quỹ</span>
+          <div class="stat-icon-wrap teal">
+            <svg class="icon" viewBox="0 0 24 24"><path d="M21 12V7H5a2 2 0 0 1 0-4h14v4"/><path d="M3 5v14a2 2 0 0 0 2 2h16v-5"/><circle cx="18" cy="12" r="2"/></svg>
+          </div>
+        </div>
+        <div class="stat-value teal" id="balance"><div class="skeleton" style="width:120px"></div></div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-header">
+          <span class="stat-label">Tổng nhận</span>
+          <div class="stat-icon-wrap green">
+            <svg class="icon" viewBox="0 0 24 24"><path d="M12 2v20M17 7l-5-5-5 5"/></svg>
+          </div>
+        </div>
+        <div class="stat-value green" id="totalDonated"><div class="skeleton" style="width:100px"></div></div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-header">
+          <span class="stat-label">Đã giải ngân</span>
+          <div class="stat-icon-wrap orange">
+            <svg class="icon" viewBox="0 0 24 24"><path d="M12 22V2M7 17l5 5 5-5"/></svg>
+          </div>
+        </div>
+        <div class="stat-value orange" id="totalWithdrawn"><div class="skeleton" style="width:90px"></div></div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-header">
+          <span class="stat-label">Nhà hảo tâm</span>
+          <div class="stat-icon-wrap cyan">
+            <svg class="icon" viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+          </div>
+        </div>
+        <div class="stat-value" id="donorCount"><div class="skeleton" style="width:50px"></div></div>
+      </div>
+    </section>
+
+    <!-- ===== MAIN GRID ===== -->
+    <div class="main-grid">
+      <!-- Donate Form -->
+      <div class="card">
+        <div class="card-title">
+          <svg class="icon" viewBox="0 0 24 24"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>
+          Quyên góp
+        </div>
+        <div class="form-group">
+          <label class="form-label" for="donateAmount">Số ETH muốn donate</label>
+          <input class="form-input" type="number" id="donateAmount" placeholder="0.01" step="0.001" min="0.0001">
+        </div>
+        <div class="form-group">
+          <label class="form-label" for="donateMessage">Lời nhắn (tùy chọn)</label>
+          <textarea class="form-textarea" id="donateMessage" placeholder="Gửi lời nhắn ủng hộ..."></textarea>
+        </div>
+        <button class="btn-donate" id="donateBtn" onclick="donate()" disabled>
+          <svg class="icon" viewBox="0 0 24 24"><path d="M21 12V7H5a2 2 0 0 1 0-4h14v4"/><path d="M3 5v14a2 2 0 0 0 2 2h16v-5"/><circle cx="18" cy="12" r="2"/></svg>
+          <span>Kết nối ví để donate</span>
+        </button>
+      </div>
+
+      <!-- History -->
+      <div class="card">
+        <div class="card-title">
+          <svg class="icon" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+          Lịch sử giao dịch
+        </div>
+        <div class="tabs">
+          <button class="tab-btn active" id="tabDonations" onclick="switchTab('donations')">Quyên góp</button>
+          <button class="tab-btn" id="tabWithdrawals" onclick="switchTab('withdrawals')">Giải ngân</button>
+        </div>
+        <div class="history-list" id="donationList">
+          <div class="empty-state">
+            <svg class="icon icon-xl" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+            <p>Đang tải dữ liệu...</p>
+          </div>
+        </div>
+        <div class="history-list" id="withdrawalList" style="display:none">
+          <div class="empty-state">
+            <svg class="icon icon-xl" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+            <p>Đang tải dữ liệu...</p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ===== PANEL GIAI NGAN (chi hien voi Owner) ===== -->
+    <section class="withdraw-panel" id="withdrawPanel" style="display:none">
+      <div class="withdraw-panel-header">
+        <div class="withdraw-panel-icon">
+          <svg class="icon" viewBox="0 0 24 24"><path d="M12 22V2M7 17l5 5 5-5"/></svg>
+        </div>
+        <div>
+          <h2>Ban Quản Trị — Giải Ngân Quỹ</h2>
+          <p>Chức năng dành riêng cho chủ hợp đồng (Owner). Mọi lần giải ngân đều được ghi vĩnh viễn trên blockchain.</p>
+        </div>
+        <div class="owner-badge">
+          <svg class="icon" style="width:14px;height:14px" viewBox="0 0 24 24"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
+          Owner
+        </div>
+      </div>
+
+      <div class="withdraw-grid">
+        <!-- Form giải ngân -->
+        <div class="card">
+          <div class="card-title">
+            <svg class="icon" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="M8 12h8M12 8v8"/></svg>
+            Thực hiện Giải Ngân
+          </div>
+
+          <!-- So du hien tai -->
+          <div class="balance-display">
+            <span class="balance-label">Số dư quỹ hiện tại</span>
+            <span class="balance-value" id="contractBalance">...</span>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label" for="withdrawTo">Địa chỉ người nhận (0x...)</label>
+            <input class="form-input" type="text" id="withdrawTo"
+              placeholder="0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266"
+              spellcheck="false" autocomplete="off">
+          </div>
+
+          <div class="form-group">
+            <label class="form-label" for="withdrawAmount">Số ETH giải ngân</label>
+            <input class="form-input" type="number" id="withdrawAmount"
+              placeholder="0.5" step="0.001" min="0.0001">
+          </div>
+
+          <div class="form-group">
+            <label class="form-label" for="withdrawPurpose">Mục đích giải ngân <span style="color:var(--red)">*</span></label>
+            <textarea class="form-textarea" id="withdrawPurpose"
+              placeholder="Ví dụ: Hỗ trợ học sinh vùng cao đợt 1 — tháng 5/2025" style="min-height:80px"></textarea>
+          </div>
+
+          <!-- Preview trước khi confirm -->
+          <div class="withdraw-preview" id="withdrawPreview" style="display:none">
+            <div class="preview-title">
+              <svg class="icon" style="width:15px;height:15px" viewBox="0 0 24 24"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+              Xác nhận trước khi gửi
+            </div>
+            <div class="preview-row"><span>Đến:</span><span id="previewTo" class="mono">—</span></div>
+            <div class="preview-row"><span>Số tiền:</span><span id="previewAmount" class="orange">—</span></div>
+            <div class="preview-row"><span>Mục đích:</span><span id="previewPurpose">—</span></div>
+            <div class="preview-warn">Giao dịch này không thể hoàn tác sau khi xác nhận!</div>
+          </div>
+
+          <div class="withdraw-actions">
+            <button class="btn-preview" id="previewBtn" onclick="previewWithdraw()">
+              <svg class="icon" style="width:16px;height:16px" viewBox="0 0 24 24"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+              Xem trước
+            </button>
+            <button class="btn-withdraw" id="withdrawBtn" onclick="withdraw()" style="display:none">
+              <svg class="icon" style="width:16px;height:16px" viewBox="0 0 24 24"><path d="M12 22V2M7 17l5 5 5-5"/></svg>
+              Xác nhận Giải Ngân
+            </button>
+            <button class="btn-cancel" id="cancelPreviewBtn" onclick="cancelPreview()" style="display:none">
+              Hủy
+            </button>
+          </div>
+        </div>
+
+        <!-- Tóm tắt giải ngân -->
+        <div class="card">
+          <div class="card-title">
+            <svg class="icon" viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+            Lưu ý khi Giải Ngân
+          </div>
+          <ul class="withdraw-tips">
+            <li>
+              <svg class="icon" style="width:15px;color:var(--green)" viewBox="0 0 24 24"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
+              Kiểm tra kỹ địa chỉ người nhận trước khi gửi.
+            </li>
+            <li>
+              <svg class="icon" style="width:15px;color:var(--green)" viewBox="0 0 24 24"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
+              Mục đích giải ngân sẽ được ghi vĩnh viễn — viết rõ ràng.
+            </li>
+            <li>
+              <svg class="icon" style="width:15px;color:var(--cta)" viewBox="0 0 24 24"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+              Không thể hoàn tác sau khi giao dịch được xác nhận.
+            </li>
+            <li>
+              <svg class="icon" style="width:15px;color:var(--cta)" viewBox="0 0 24 24"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+              Chỉ tài khoản Owner mới có quyền giải ngân.
+            </li>
+          </ul>
+
+          <!-- Owner address info -->
+          <div class="owner-info">
+            <div class="owner-info-label">Owner hiện tại</div>
+            <div class="owner-info-addr mono" id="ownerAddr">Đang kiểm tra...</div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- Footer -->
+  <footer class="footer">
+    <div class="container">
+      <p>Blockchain Charity System &mdash; Powered by <a href="https://ethereum.org" target="_blank" rel="noopener">Ethereum</a> &bull; Mọi giao dịch được ghi nhận vĩnh viễn trên blockchain</p>
+    </div>
+  </footer>
+
+  <!-- Toast -->
+  <div class="toast" id="toast"></div>
+
+  <script type="module" src="app.js"></script>
+</body>
+</html>
